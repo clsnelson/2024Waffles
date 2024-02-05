@@ -47,18 +47,17 @@ class SwerveModule(Subsystem):
         direction_motor_constants.apply_configuration(self.direction_motor)
 
     def get_angle(self) -> Rotation2d:
-        return Rotation2d.fromDegrees(rots_to_degs(self.direction_motor.get_rotor_position().value / k_direction_gear_ratio))
+        return Rotation2d.fromDegrees(rots_to_degs(self.direction_motor.get_position().value))
     
     def reset_sensor_position(self) -> None:
-        pass
         pos = -self.turning_encoder.get_absolute_position().value
         self.direction_motor.set_position(pos * k_direction_gear_ratio)
 
     def get_state(self) -> SwerveModuleState:
-        return SwerveModuleState(rots_to_meters(self.drive_motor.get_rotor_velocity().value, k_drive_gear_ratio), self.get_angle())
+        return SwerveModuleState(rots_to_meters(self.drive_motor.get_velocity().value), self.get_angle())
     
     def get_position(self) -> SwerveModulePosition:
-        return SwerveModulePosition(rots_to_meters(self.drive_motor.get_rotor_position().value, k_drive_gear_ratio), self.get_angle())
+        return SwerveModulePosition(rots_to_meters(self.drive_motor.get_position().value), self.get_angle())
 
     def set_desired_state(self, desiredState: SwerveModuleState) -> None:
         desiredState = SwerveModuleState.optimize(desiredState, self.get_angle())
@@ -78,12 +77,12 @@ class SwerveModule(Subsystem):
                 target_angle_dist -= 360
             target_angle_dist = abs(target_angle_dist)
 
-        change_in_rots = target_angle_dist / 360
+        change_in_rots = degs_to_rots(target_angle_dist)
 
         if angle_diff < 0 or angle_diff >= 360:
             angle_diff %= 360
         
-        final_pos = self.direction_motor.get_rotor_position().value / k_direction_gear_ratio
+        final_pos = self.direction_motor.get__position().value
         if angle_diff > 180:
             # Move CCW
             final_pos -= change_in_rots
@@ -91,7 +90,7 @@ class SwerveModule(Subsystem):
             # Move CW
             final_pos += change_in_rots
 
-        self.direction_motor.set_control(MotionMagicVoltage(final_pos * k_direction_gear_ratio))
+        self.direction_motor.set_control(MotionMagicVoltage(final_pos))
 
 class Swerve(Subsystem):
     navx = navx.AHRS.create_spi()
