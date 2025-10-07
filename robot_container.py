@@ -11,7 +11,6 @@ import commands2.button
 import commands2.cmd
 from commands2.sysid import SysIdRoutine
 from generated.tuner_constants import TunerConstants
-from pathplannerlib.auto import AutoBuilder
 from phoenix6 import SignalLogger, swerve
 from phoenix6.swerve.utility.phoenix_pid_controller import PhoenixPIDController
 from robot_state import RobotState
